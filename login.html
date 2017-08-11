@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no, email=no" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/login.css"/>
+		<title>用户登录</title>
+	</head>
+	<body>
+		<div class="login-container">
+			<div class="input">
+				<input id="userName" type="text" class="username" placeholder="请输入用户名" />
+			</div>
+			<div class="input">
+				<input id="password" type="password" class="password" placeholder="请输入密码" />
+				<i class="icon-close"></i>
+			</div>
+			<a id="submit" class="login-btn" href="javascript:;">登录</a>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/base.js" ></script>
+		<script type="text/javascript" charset="utf-8">
+	      	mui.init({
+	      		swipeBack:true
+	      	});
+	      	var URL = "http://inf.kuaicarkeep.com/";
+	      	function GetQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				var r = window.location.search.substr(1).match(reg);
+				if(r != null) return unescape(r[2]);
+				return null;
+			}
+	      	var openId = GetQueryString('openId');
+	      	document.getElementById('submit').addEventListener('tap',function(){
+	      		var obj={};
+	      		obj.userName = document.getElementById('userName').value;
+	      		obj.password = document.getElementById('password').value;
+	      		obj.openId = openId;
+	      		mui.ajax(URL+'wxmp/logon/loginByUserNameAndPassword',{
+					data:{
+						userName:obj.userName,
+						password:obj.password,
+						openId:obj.openId
+					},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					/*headers:{
+						'Content-Type':'application/json',
+					},*/
+					success:function(data){
+						console.log(data);
+						if(data.result == 'Succeeded'){
+							token = data.data;
+							var base64Str=token.split('.')[1];
+							var base = new Base64();  
+							var result2 = base.decode(base64Str);
+							result2 = result2.substring(result2.indexOf("{"));
+							result2 = result2.substring(0, result2.lastIndexOf("}") + 1);
+							var result2 = JSON.parse(result2);
+							var exp = new Date(result2.exp*1000).getTime();
+							sessionStorage.setItem('adminexp',exp);
+							sessionStorage.setItem('admintoken',token);
+							//验证成功后保存token并跳转到首页
+							location.href="index.html";
+						}
+					}
+				});
+	      	})
+	      	
+	    </script>
+	</body>
+</html>

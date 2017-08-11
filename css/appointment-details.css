@@ -1,0 +1,27 @@
+.mui-table-view-cell{
+	font-size: 13px;
+	color: #666;
+}
+.mui-table-view-cell:after{
+	left: 0;
+}
+.mui-table-view-cell.mui-active{
+	background: #fff;
+}
+.details-content .title{
+	line-height: 43px;
+	padding: 0 15px;
+	font-size: 13px;
+	color: #666;
+}
+.details-content .mui-text-right{
+	color: #d32e12;
+}
+.price{
+	font-size: 10px;
+}
+.details-icon{
+	vertical-align: middle;
+	width: 10px;
+	margin-right: 0px;
+}

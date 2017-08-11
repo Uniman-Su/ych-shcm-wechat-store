@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>预约管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/appointment.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">预约管理</h1>
+		</header>
+		<div class="mui-content">
+		    <ul id="content" class="appointment-container">
+				<!--<li class="appoinitment-list">
+					<a href="appointment-details.html">
+					<h3 class="title">宝马X1<span class="title1">2016款 18T 双离合 运动旗舰型</span></h3>
+					<div class="appointment-info">
+						<h3 class="caption">大保养</h3>
+						<p class="time">2017.06.21 12:18</p>
+					</div>	
+					</a>
+				</li>
+				<li class="appoinitment-list">
+					<h3 class="title">宝马X1<span class="title1">2016款 18T 双离合 运动旗舰型</span></h3>
+					<div class="appointment-info">
+						<h3 class="caption">大保养</h3>
+						<p class="time">2017.06.21 12:18</p>
+					</div>	
+				</li>
+				<li class="appoinitment-list">
+					<h3 class="title">宝马X1<span class="title1">2016款 18T 双离合 运动旗舰型</span></h3>
+					<div class="appointment-info">
+						<h3 class="caption">大保养</h3>
+						<p class="time">2017.06.21 12:18</p>
+					</div>	
+				</li>
+				<li class="appoinitment-list">
+					<h3 class="title">宝马X1<span class="title1">2016款 18T 双离合 运动旗舰型</span></h3>
+					<div class="appointment-info">
+						<h3 class="caption">大保养</h3>
+						<p class="time">2017.06.21 12:18</p>
+					</div>	
+				</li>-->
+			</ul>
+		</div>
+		
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/base.js" ></script>
+		<script type="text/javascript" src="js/token.js" ></script>
+		<script type="text/javascript">
+			mui.init({
+	      		swipeBack:true
+	      	});
+	      	refreshToken();
+			var URL = "http://inf.kuaicarkeep.com/";
+			var token = sessionStorage.getItem('admintoken');	
+			function getTokenMsg(token){
+				var base = new Base64();
+				var base64Str = token.split('.')[1];
+				var result2 = base.decode(base64Str);
+				result2 = result2.substring(result2.indexOf("{"));
+				result2 = result2.substring(0, result2.lastIndexOf("}") + 1);
+				var result2 = JSON.parse(result2);
+				return result2;
+			}
+			var tokenMsg = getTokenMsg(token);
+			var shopId = tokenMsg.shopId;
+			mui.ajax(URL+'wxmp/order/queryOrderAppointmentsOfShop',{
+				data:JSON.stringify({
+					pageIndex:0,
+					pageSize:1000,
+					startIndex:0,
+					shopId:shopId,
+					needOrderInfo:true
+				}),
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				processData:false,
+				headers:{
+					'Content-Type':'application/json',
+					'Authorization':'Bearer '+ token
+				},
+				success:function(data){
+					console.log(data);
+					if(data.result == 'Succeeded'){
+						var list = data.data.list;
+						var str='';
+						if(list.length !=0){
+							mui.each(list,function(index,item){
+								var seriesName = item.order.car.carModel.series.name;
+								var carModelName = item.order.car.carModel.name;
+								var carId = item.order.carId;
+								str+='<li class="appoinitment-list">';
+								str+='<a href="appointment-details.html?id='+item.id+'&carId='+carId+'">';
+								str+='<h3 class="title">'+seriesName+'<span class="title1">'+carModelName+'</span></h3>';
+								str+='<div class="appointment-info">';
+								str+='<h3 class="caption">'+item.order.orderServicePacks[0].name+'</h3>';
+								str+='<p class="time">'+new Date(item.appointedTime).getFullYear() + '-' + (new Date(item.appointedTime).getMonth()+1) + '-' + new Date(item.appointedTime).getDate() + ' ' + new Date(item.appointedTime).getHours()+':00'+'</p>';
+								str+='</div>';
+								str+='</a>';
+								str+='</li>';
+							})
+							document.getElementById('content').innerHTML = str;
+						}else{
+							document.getElementById('content').innerHTML = '暂无数据';
+						}
+					}else{
+						mui.toast(data.description);
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					//console.log(type);
+				}
+			});
+
+		</script>
+	</body>
+
+</html>

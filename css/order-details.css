@@ -1,0 +1,72 @@
+.mui-table-view-cell{
+	font-size: 13px;
+	color: #666;
+}
+.mui-table-view-cell:after{
+	left: 0;
+}
+.mui-table-view-cell.mui-active{
+	background: #fff;
+}
+.details-content .title{
+	line-height: 43px;
+	padding: 0 15px;
+	font-size: 13px;
+	color: #666;
+}
+.details-content .mui-text-right{
+	color: #d32e12;
+}
+.price{
+	font-size: 10px;
+}
+.details-icon{
+	vertical-align: middle;
+	width: 10px;
+	margin-right: 0px;
+}
+.text-color{
+	color: #D32E12;
+}
+.comments-container{
+	padding-top: 15px;
+}
+.comments-container .mui-table-view-cell{
+	color: #666;
+}
+.comments-container .mui-table-view-cell:after{
+	display: none;
+}
+.star-component .star{
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../images/icon-star.png) no-repeat;
+	background-size: 100% 100%;
+	vertical-align: middle;
+}
+.star-component .star.active{
+	background: url(../images/icon-star1.png) no-repeat;
+	background-size: 100% 100%;
+}
+.icon-my{
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../images/my.png) no-repeat;
+	background-size: 100% 100%;
+	vertical-align: middle;
+}
+.icon-my.active{
+	background: url(../images/my1.png) no-repeat;
+	background-size: 100% 100%;
+}
+.star-component ..mui-table-view{
+	margin-bottom: 1px solid #e6e6e6;
+}
+.comments-info{
+	padding: 15px;
+	background: #fff;
+	font-size: 13px;
+	color: #666;
+}

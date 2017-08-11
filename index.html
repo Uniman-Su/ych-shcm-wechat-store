@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>门店管理</title>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/common.css"/>
+    <link rel="stylesheet" href="css/index.css" />
+</head>
+<body>
+	<header class="mui-bar mui-bar-nav">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+	    <h1 class="mui-title">门店管理</h1>
+	</header>
+	<div class="mui-content">
+	    <ul class="index-container">
+			<li class="index-list">
+				<a href="order.html">
+				<div class="list-container">
+					<img class="list-pic" src="images/index-pic1.png" />
+					<p class="list-info">订单管理</p>
+				</div>	
+				</a>
+			</li>
+			<li id="code" class="index-list">
+				<a href="javascript:;">
+					<div class="list-container">
+						<img class="list-pic" src="images/index-pic2.png" />
+						<p class="list-info">扫描二维码</p>
+					</div>	
+				</div>
+			</li>
+			<li class="index-list">
+				<a href="appointment.html">
+				<div class="list-container">
+					<img class="list-pic" src="images/index-pic3.png" />
+					<p class="list-info">预约管理</p>
+				</div>	
+				</a>
+			</li>
+		</ul>	
+	</div>
+	
+	
+	<script src="js/mui.min.js"></script>
+	<script type="text/javascript" src="js/base.js" ></script>
+	<script type="text/javascript" src="js/token.js" ></script>
+	<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+	<script type="text/javascript" charset="utf-8">
+	
+      	mui.init({
+      		swipeBack:true
+      	});
+      	function loading(){	
+      		var div = document.createElement('div');
+      		div.id ='spinner-box';
+			var str='<div class="spinner-box">'+
+				'<div class="spinner">'+
+			    '<div class="spinner-container container1">'+
+			    '<div class="circle1"></div>'+
+			    '<div class="circle2"></div>'+
+			    '<div class="circle3"></div>'+
+			    '<div class="circle4"></div>'+
+			 	'</div>'+
+			    '<div class="spinner-container container2">'+
+			    '<div class="circle1"></div>'+
+			    '<div class="circle2"></div>'+
+			    '<div class="circle3"></div>'+
+			    '<div class="circle4"></div>'+
+			    '</div>'+
+			    '<div class="spinner-container container3">'+
+			    '<div class="circle1"></div>'+
+			    '<div class="circle2"></div>'+
+			    '<div class="circle3"></div>'+
+			    '<div class="circle4"></div>'+
+			    '</div>'+
+			    '</div>'+
+			    '</div>';
+			div.innerHTML = str;    
+			mui('body')[0].appendChild(div);    
+		}
+		function removeLoad(){
+			var child = document.getElementById('spinner-box');
+			mui('body')[0].removeChild(child);
+		}
+		loading();
+      	
+      	var URL = "http://inf.kuaicarkeep.com/";
+		function GetQueryString(name) {
+			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+			var r = window.location.search.substr(1).match(reg);
+			if(r != null) return unescape(r[2]);
+			return null;
+		}
+				
+		var token =  GetQueryString('jwt');
+		var base64Str=token.split('.')[1];
+		var base = new Base64();  
+		var result2 = base.decode(base64Str);
+		result2 = result2.substring(result2.indexOf("{"));
+		result2 = result2.substring(0, result2.lastIndexOf("}") + 1);
+		var result2 = JSON.parse(result2);
+		var exp = new Date(result2.exp*1000).getTime();
+		sessionStorage.setItem('adminexp',exp);
+		sessionStorage.setItem('admintoken',token);
+		if(token == null){
+			token = sessionStorage.getItem('admintoken');
+		}
+		
+		refreshToken();
+		
+		var btn=false;
+		
+		mui.ajax(URL+'wxmp/logon/getJsApiInitInfo',{
+			data:{
+				url:location.href
+			},
+			dataType:'json',//服务器返回json格式数据
+			type:'post',//HTTP请求类型
+			timeout:10000,//超时时间设置为10秒；
+			//processData:false,
+			headers:{
+				//'Content-Type':'application/json',
+				'Authorization':'Bearer '+ token
+			},
+			success:function(data){
+				console.log(data);
+				var appId = data.appId;
+				var nonceStr = data.nonceStr;
+				var signature = data.signature;
+				var timestamp = data.timestamp;
+				wx.config({
+				    debug: false, 
+				    appId: appId, 
+				    timestamp: timestamp, 
+				    nonceStr: nonceStr, 
+				    signature: signature,
+				    jsApiList: ['scanQRCode'] 
+				});
+				btn=true;
+			},
+			error:function(xhr,type,errorThrown){
+				//console.log(type);
+			}
+		});
+		
+		wx.ready(function(){
+			removeLoad();
+			document.getElementById('code').addEventListener('tap',function(){
+				if(!btn){
+					return;
+				}
+				wx.scanQRCode({
+				    needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+				    scanType: ["qrCode","barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+				    success: function (res) {
+					    var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+					    location.href="order-details2.html?orderId="+result;
+					}
+				});
+			})
+		})
+      	
+      	
+      	
+    </script>
+</body>
+</html>

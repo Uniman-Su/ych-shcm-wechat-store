@@ -1,0 +1,26 @@
+html{
+	min-height: 100%;
+}
+body{
+	background: url(../images/index-bg.jpg) no-repeat;
+	background-size: 100% 100%;
+}
+.index-container{
+	padding-top: 30px;
+}
+.index-list{
+	display: -webkit-box;
+	height: 33.3333%;
+	-webkit-box-align: center;
+	-webkit-box-pack: center;
+	margin-bottom: 20px;
+}
+.list-pic{
+	width: 120px;
+	height: 120px;
+}
+.list-info{
+	font-size: 16px;
+	color: #333;
+	text-align: center;
+}

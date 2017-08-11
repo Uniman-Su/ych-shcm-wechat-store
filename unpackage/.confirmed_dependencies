@@ -1,0 +1,107 @@
+{
+  "order-details.html": {
+    "href": "order-details.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/order-details.css",
+      "js/mui.min.js",
+      "images/car-info.png",
+      "images/price-icon1.png",
+      "images/price-icon2.png",
+      "images/price-icon3.png"
+    ],
+    "refer": [],
+    "priority": 0
+  },
+  "order-details1.html": {
+    "href": "order-details1.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/order-details.css",
+      "js/mui.min.js",
+      "images/car-info.png",
+      "images/price-icon1.png",
+      "images/price-icon2.png",
+      "images/price-icon3.png"
+    ],
+    "refer": [],
+    "priority": 0
+  },
+  "order.html": {
+    "href": "order.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/order.css",
+      "js/mui.min.js"
+    ],
+    "refer": [
+      "order-details.html",
+      "order-details1.html"
+    ],
+    "priority": 0
+  },
+  "order-details2.html": {
+    "href": "order-details2.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/order-details.css",
+      "js/mui.min.js",
+      "images/car-info.png",
+      "images/price-icon1.png",
+      "images/price-icon2.png",
+      "images/price-icon3.png"
+    ],
+    "refer": [],
+    "priority": 0
+  },
+  "appointment-details.html": {
+    "href": "appointment-details.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/appointment-details.css",
+      "js/mui.min.js",
+      "images/car-info.png",
+      "images/price-icon1.png",
+      "images/price-icon2.png",
+      "images/price-icon3.png"
+    ],
+    "refer": [],
+    "priority": 0
+  },
+  "appointment.html": {
+    "href": "appointment.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/appointment.css",
+      "js/mui.min.js"
+    ],
+    "refer": [
+      "appointment-details.html"
+    ],
+    "priority": 0
+  },
+  "index.html": {
+    "href": "index.html",
+    "resources": [
+      "css/mui.min.css",
+      "css/common.css",
+      "css/index.css",
+      "js/mui.min.js",
+      "images/index-pic1.png",
+      "images/index-pic2.png",
+      "images/index-pic3.png"
+    ],
+    "refer": [
+      "order.html",
+      "order-details2.html",
+      "appointment.html"
+    ],
+    "priority": 0
+  }
+}

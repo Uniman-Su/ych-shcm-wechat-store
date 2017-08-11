@@ -1,0 +1,298 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>订单详情</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/order-details.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">订单详情</h1>
+		</header>
+		<footer class="mui-bar mui-bar-footer">
+		    <h1 class="mui-title">确认服务</h1>
+		</footer>
+		<div class="mui-content">
+		    <header class="common-head">
+				<img id="logoPath" class="common-head-pic" src="" />
+				<div class="common-head-content">
+					<h3 id="seriesName" class="title"></h3>
+					<p id="carModelName" class="info mui-ellipsis"></p>
+				</div>	
+			</header>
+			<ul class="mui-table-view">
+			    <li  class="mui-table-view-cell">预约时间
+			    	<span id="createTime" class="mui-pull-right"></span>
+			    </li>
+			    <li class="mui-table-view-cell">状态
+			    	<span id="status" class="mui-pull-right"></span>
+			    </li>
+			</ul>
+			<div class="details-content">
+				<h3 class="title">小保养</h3>
+				<ul id="orderServicePacks" class="mui-table-view">
+				    <!--<li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon1.png" />
+				    	机油
+				    </li>
+				    <li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon2.png" />
+				    	机油滤清器
+				    </li>
+				    <li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon3.png" />
+				    	工时费
+				    </li>
+				    <li class="mui-table-view-cell mui-text-right">合计:<span class="price">&yen;</span>280.00</li>-->
+				</ul>
+			</div>	
+		</div>
+		
+		<!--<div class="dialog-msg">
+			<h3 class="dialog-title">
+				提示
+				<span class="mui-icon mui-icon-close mui-pull-right"></span>
+			</h3>
+			<div class="dialog-msg-content">
+				<img class="msg-pic" src="images/msg.png" />
+				<p class="msg-info">订单状态已变更，请注意查看</p>
+				<div class="msg-btn-group">
+					<a class="msg-btn" href="javascript:;">返回</a>
+				</div>	
+			</div>	
+		</div>	-->
+		<div id="dialog" class="dialog">
+		<div class="dialog-msg">
+			<h3 class="dialog-title">
+				提示
+				<span id="callbtn1" class="mui-icon mui-icon-close mui-pull-right"></span>
+			</h3>
+			<div class="dialog-msg-content">
+				<input id="mileage" class="msg-input" type="number" placeholder="请填写当前里程数" />
+				<div class="msg-btn-group">
+					<a id="callbtn" class="msg-btn" href="javascript:;">否</a>
+					<a id="submit" class="msg-btn" href="javascript:;">是</a>
+				</div>	
+			</div>	
+		</div>	
+		</div>
+		
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/base.js" ></script>
+		<script type="text/javascript" src="js/token.js" ></script>
+		<script type="text/javascript">
+			mui.init({
+				swipeBack: false
+			});
+			function loading(){	
+      		var div = document.createElement('div');
+      		div.id ='spinner-box';
+			var str='<div class="spinner-box">'+
+				'<div class="spinner">'+
+			    '<div class="spinner-container container1">'+
+			    '<div class="circle1"></div>'+
+			    '<div class="circle2"></div>'+
+			    '<div class="circle3"></div>'+
+			    '<div class="circle4"></div>'+
+			 	'</div>'+
+			    '<div class="spinner-container container2">'+
+			    '<div class="circle1"></div>'+
+			    '<div class="circle2"></div>'+
+			    '<div class="circle3"></div>'+
+			    '<div class="circle4"></div>'+
+			    '</div>'+
+			    '<div class="spinner-container container3">'+
+			    '<div class="circle1"></div>'+
+			    '<div class="circle2"></div>'+
+			    '<div class="circle3"></div>'+
+			    '<div class="circle4"></div>'+
+			    '</div>'+
+			    '</div>'+
+			    '</div>';
+			div.innerHTML = str;    
+			mui('body')[0].appendChild(div);    
+		}
+		function removeLoad(){
+			var child = document.getElementById('spinner-box');
+			mui('body')[0].removeChild(child);
+		}
+			function GetQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				var r = window.location.search.substr(1).match(reg);
+				if(r != null) return unescape(r[2]);
+				return null;
+			}
+			
+			refreshToken();
+			//订单状态
+			var orderStatus = {
+				"UNPAYED": "未支付",
+				"PAYED": "已支付",
+				"SERVICED": "待确认",
+				"CONFIRMED": "待评价",
+				"EVALUATED": "已完成",
+				"REFUNDED": "已退款",
+				"CANCELED": "已取消",
+				"REFUNDED_OFF_LINE": "线下退款"
+			};
+			var URL = "http://inf.kuaicarkeep.com/";
+			var token = sessionStorage.getItem('admintoken');
+			var orderId = GetQueryString('orderId');
+			var money;
+			mui.ajax(URL+'sone/order/orderDetail',{
+				data:{
+					orderId:Number(orderId)
+				},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				headers:{
+					'Authorization':'Bearer '+ token
+				},
+				success:function(data){
+					if(data.result == 'Succeeded'){
+						var data = data.data;
+						var carId = data.carId;
+						var createTime = data.createTime;
+						//console.log(data);
+						createTime = new Date(createTime).getFullYear() + '-' + (new Date(createTime).getMonth()+1) + '-' + new Date(createTime).getDate();
+						//var mileage = data.mileage;
+						money = data.money;
+						var status = data.status;
+						status = orderStatus[status];
+						document.getElementById('status').innerHTML = status;
+						document.getElementById('createTime').innerHTML = createTime;
+						document.getElementById('mileage').innerHTML = mileage;
+						mui.ajax(URL+'car/queryCar',{
+							data:{
+								id:Number(carId),
+								isComplete:true
+							},
+							dataType:'json',//服务器返回json格式数据
+							type:'post',//HTTP请求类型
+							timeout:10000,//超时时间设置为10秒；
+							headers:{
+								'Authorization':'Bearer '+ token
+							},
+							success:function(data){
+								//console.log(data);
+								if(data.result == 'Succeeded'){
+									var data = data.data;
+									var seriesName = data.carModel.series.name;
+									var carModelName = data.carModel.name;
+									var logoPath = data.carModel.series.carBrand.logoPath;
+									document.getElementById('seriesName').innerHTML = seriesName;
+									document.getElementById('carModelName').innerHTML = carModelName;
+									document.getElementById('logoPath').src = logoPath;
+								}else{
+									mui.toast(data.description);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								//console.log(type);
+							}
+						});
+						mui.ajax(URL+'order/queryServicePack',{
+							data:{
+								orderId:Number(orderId),
+								needItems:true
+							},
+							dataType:'json',//服务器返回json格式数据
+							type:'post',//HTTP请求类型
+							timeout:10000,//超时时间设置为10秒；
+							headers:{
+								'Authorization':'Bearer '+ token
+							},
+							success:function(data){
+								//console.log(data);
+								if(data.result == 'Succeeded'){
+									var data = data.data;
+									var orderServicePackItems = data[0].orderServicePackItems;
+									var list='';
+									mui.each(orderServicePackItems,function(index,item){
+										list+='<li class="mui-table-view-cell">';
+				    					list+='<img class="details-icon" src="'+item.iconPath+'" />';
+				   						list+=''+item.name+' </li>';
+									})
+									list+='<li class="mui-table-view-cell mui-text-right">合计:<span class="price">&yen;</span>'+money+'</li>';
+									document.getElementById('orderServicePacks').innerHTML = list;
+								}else{
+									mui.toast(data.description);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								//console.log(type);
+							}
+						});
+					}else{
+						mui.toast(data.description);
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					//console.log(type);
+				}
+			});
+			
+			//确认服务
+			mui('.mui-bar-footer')[0].addEventListener('tap',function(){
+				mui('#dialog')[0].style.display='block';
+			})
+			mui('#callbtn')[0].addEventListener('tap',function(){
+				mui('#dialog')[0].style.display='none';
+			})
+			mui('#callbtn1')[0].addEventListener('tap',function(){
+				mui('#dialog')[0].style.display='none';
+			})
+			mui('#submit')[0].addEventListener('tap',function(){
+				loading();
+				confrims();
+			})
+			
+			function confrims(){
+				var mileage = document.getElementById('mileage').value;
+				if(mileage == ""){
+					mui.toast('请填写里程数');
+					return;
+				}
+				//确认服务
+				var token = sessionStorage.getItem('admintoken');
+				mui.ajax({
+					type:"post",
+					url:URL+"shop/confirmService",
+					headers: {
+						'Authorization':'Bearer '+ token
+					},
+					dataType:'json',
+					data:{
+						orderId:orderId,
+						mileage:mileage
+					},
+					success:function(data){
+						console.log(data);
+						mui('#dialog')[0].style.display='none';
+						removeLoad();
+						if(data.result == "Succeeded"){
+							//确认服务成功后
+							location.href='order.html';
+						}else{
+							mui.toast(data.description);
+						}
+						
+					},
+					error:function(xhr,type,errorThrown){
+						console.log(type);
+					}
+				});
+			}
+				
+		</script>
+	</body>
+
+</html>

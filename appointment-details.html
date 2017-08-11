@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>预约详情</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/appointment-details.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">预约详情</h1>
+		</header>
+		<div class="mui-content">
+		    <header class="common-head">
+				<img id="logoPath" class="common-head-pic"/>
+				<div class="common-head-content">
+					<h3 id="seriesName" class="title"></h3>
+					<p id="carModelName" class="info mui-ellipsis"></p>
+				</div>	
+			</header>
+			<ul class="mui-table-view">
+			    <li class="mui-table-view-cell">预约时间
+			    	<span id="appointedTime" class="mui-pull-right"></span>
+			    </li>
+			    <li class="mui-table-view-cell">联系人
+			    	<span id="ptc" class="mui-pull-right"></span>
+			    </li>
+			    <li class="mui-table-view-cell">联系电话
+			    	<span id="phone" class="mui-pull-right"></span>
+			    </li>
+			</ul>
+			<div class="details-content">
+				<h3 id="name" class="title"></h3>
+				<ul id="orderServicePacks" class="mui-table-view">
+				    <!--<li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon1.png" />
+				    	机油
+				    </li>
+				    <li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon2.png" />
+				    	机油滤清器
+				    </li>
+				    <li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon3.png" />
+				    	工时费
+				    </li>
+				    <li class="mui-table-view-cell mui-text-right">合计:<span class="price">&yen;</span>280.00</li>-->
+				</ul>
+			</div>	
+		</div>
+		
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/base.js" ></script>
+		<script type="text/javascript" src="js/token.js" ></script>
+		<script type="text/javascript">
+			mui.init({
+	      		swipeBack:true
+	      	});
+	      	function GetQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				var r = window.location.search.substr(1).match(reg);
+				if(r != null) return unescape(r[2]);
+				return null;
+			}
+	      	refreshToken();
+			var URL = "http://inf.kuaicarkeep.com/";
+			var token = sessionStorage.getItem('admintoken');	
+			var id = GetQueryString('id');
+			var carId = GetQueryString('carId');
+			var orderId;
+			
+			mui.ajax(URL+'car/queryCar',{
+				data:{
+					id:Number(carId),
+					isComplete:true
+				},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				headers:{
+					'Authorization':'Bearer '+ token
+				},
+				success:function(data){
+					//console.log(data);
+					if(data.result == 'Succeeded'){
+						var data = data.data;
+						var seriesName = data.carModel.series.name;
+						var carModelName = data.carModel.name;
+						var logoPath = data.carModel.series.carBrand.logoPath;
+						document.getElementById('seriesName').innerHTML = seriesName;
+						document.getElementById('carModelName').innerHTML = carModelName;
+						document.getElementById('logoPath').src = logoPath;
+					}else{
+						mui.toast(data.description);
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					//console.log(type);
+				}
+			});
+			
+			mui.ajax(URL+'wxmp/order/orderAppointmentsDetail',{
+				data:{
+					id:Number(id)
+				},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				headers:{
+					'Authorization':'Bearer '+ token
+				},
+				success:function(data){
+					//console.log(data);
+					if(data.result == 'Succeeded'){
+						var data = data.data;
+						orderId = data.orderId;
+						var appointedTime = data.appointedTime;
+						appointedTime = new Date(appointedTime).getFullYear() + '-' + (new Date(appointedTime).getMonth()+1) + '-' + new Date(appointedTime).getDate() + ' ' + new Date(appointedTime).getHours()+':00';
+						var ptc = data.ptc;
+						var phone = data.phone;
+						document.getElementById('appointedTime').innerHTML = appointedTime;
+						document.getElementById('ptc').innerHTML = ptc;
+						document.getElementById('phone').innerHTML = phone;
+						load(orderId);
+					}else{
+						mui.toast(data.description);
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					//console.log(type);
+				}
+			});
+			function load(orderId){
+				mui.ajax(URL+'order/queryServicePack',{
+					data:{
+						orderId:Number(orderId),
+						needItems:true
+					},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{
+						'Authorization':'Bearer '+ token
+					},
+					success:function(data){
+						console.log(data);
+						if(data.result == 'Succeeded'){
+							var data = data.data;
+							var orderServicePackItems = data[0].orderServicePackItems;
+							var name = data[0].name;
+							var list='';
+							var price = data[0].price;
+							document.getElementById('name').innerHTML = name;
+							mui.each(orderServicePackItems,function(index,item){
+								list+='<li class="mui-table-view-cell">';
+		    					list+='<img class="details-icon" src="'+item.iconPath+'" />';
+		   						list+=''+item.name+' </li>';
+							})
+							list+='<li class="mui-table-view-cell mui-text-right">合计:<span class="price">&yen;</span>'+price+'</li>';
+							document.getElementById('orderServicePacks').innerHTML = list;
+						}else{
+							mui.toast(data.description);
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						//console.log(type);
+					}
+				});
+			}
+			
+		</script>
+	</body>
+
+</html>

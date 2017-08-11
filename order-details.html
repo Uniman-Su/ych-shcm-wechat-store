@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>商品详情</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/order-details.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">商品详情</h1>
+		</header>
+		<div class="mui-content">
+		    <header class="common-head">
+				<img id="logoPath" class="common-head-pic" />
+				<div class="common-head-content">
+					<h3 id="seriesName" class="title"></h3>
+					<p id="carModelName" class="info mui-ellipsis"></p>
+				</div>	
+			</header>
+			<ul class="mui-table-view">
+			    <li class="mui-table-view-cell">预约时间
+			    	<span id="createTime" class="mui-pull-right"></span>
+			    </li>
+			    <li class="mui-table-view-cell">里程数
+			    	<span id="mileage" class="mui-pull-right"></span>
+			    </li>
+			    <li class="mui-table-view-cell">状态
+			    	<span id="status" class="mui-pull-right text-color"></span>
+			    </li>
+			</ul>
+			<div class="details-content">
+				<h3 class="title">小保养</h3>
+				<ul id="orderServicePacks" class="mui-table-view">
+				    <!--<li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon1.png" />
+				    	机油
+				    </li>
+				    <li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon2.png" />
+				    	机油滤清器
+				    </li>
+				    <li class="mui-table-view-cell">
+				    	<img class="details-icon" src="images/price-icon3.png" />
+				    	工时费
+				    </li>
+				    <li class="mui-table-view-cell mui-text-right">合计:<span class="price">&yen;</span>280.00</li>-->
+				</ul>
+			</div>	
+		</div>
+		
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/base.js" ></script>
+		<script type="text/javascript" src="js/token.js" ></script>
+		<script type="text/javascript">
+			mui.init({
+				swipeBack: false
+			});
+			function GetQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				var r = window.location.search.substr(1).match(reg);
+				if(r != null) return unescape(r[2]);
+				return null;
+			}
+			
+			refreshToken();
+			var URL = "http://inf.kuaicarkeep.com/";
+			var token = sessionStorage.getItem('admintoken');
+			var orderId = GetQueryString('id');
+			var money;
+			
+			mui.ajax(URL+'sone/order/orderDetail',{
+				data:{
+					orderId:Number(orderId)
+				},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				headers:{
+					'Authorization':'Bearer '+ token
+				},
+				success:function(data){
+					console.log(data);
+					if(data.result == 'Succeeded'){
+						var data = data.data;
+						var carId = data.carId;
+						var createTime = data.createTime;
+						createTime = new Date(createTime).getFullYear() + '-' + (new Date(createTime).getMonth()+1) + '-' + new Date(createTime).getDate();
+						var mileage = data.mileage;
+						money = data.money;
+						var status = data.status;
+						if( status == "SERVICED"){
+							status ="待确认";
+						}else if( status == "CONFIRMED"){
+							status ="待评价";
+						}
+						document.getElementById('status').innerHTML = status;
+						document.getElementById('createTime').innerHTML = createTime;
+						document.getElementById('mileage').innerHTML = mileage;
+						mui.ajax(URL+'car/queryCar',{
+							data:{
+								id:Number(carId),
+								isComplete:true
+							},
+							dataType:'json',//服务器返回json格式数据
+							type:'post',//HTTP请求类型
+							timeout:10000,//超时时间设置为10秒；
+							headers:{
+								'Authorization':'Bearer '+ token
+							},
+							success:function(data){
+								//console.log(data);
+								if(data.result == 'Succeeded'){
+									var data = data.data;
+									var seriesName = data.carModel.series.name;
+									var carModelName = data.carModel.name;
+									var logoPath = data.carModel.series.carBrand.logoPath;
+									document.getElementById('seriesName').innerHTML = seriesName;
+									document.getElementById('carModelName').innerHTML = carModelName;
+									document.getElementById('logoPath').src = logoPath;
+								}else{
+									mui.toast(data.description);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								//console.log(type);
+							}
+						});
+						mui.ajax(URL+'order/queryServicePack',{
+							data:{
+								orderId:Number(orderId),
+								needItems:true
+							},
+							dataType:'json',//服务器返回json格式数据
+							type:'post',//HTTP请求类型
+							timeout:10000,//超时时间设置为10秒；
+							headers:{
+								'Authorization':'Bearer '+ token
+							},
+							success:function(data){
+								//console.log(data);
+								if(data.result == 'Succeeded'){
+									var data = data.data;
+									var orderServicePackItems = data[0].orderServicePackItems;
+									var list='';
+									mui.each(orderServicePackItems,function(index,item){
+										list+='<li class="mui-table-view-cell">';
+				    					list+='<img class="details-icon" src="'+item.iconPath+'" />';
+				   						list+=''+item.name+' </li>';
+									})
+									list+='<li class="mui-table-view-cell mui-text-right">合计:<span class="price">&yen;</span>'+money+'</li>';
+									document.getElementById('orderServicePacks').innerHTML = list;
+								}else{
+									mui.toast(data.description);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								//console.log(type);
+							}
+						});
+					}else{
+						mui.toast(data.description);
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					//console.log(type);
+				}
+			});
+		</script>
+	</body>
+
+</html>

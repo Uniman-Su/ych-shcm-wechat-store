@@ -1,0 +1,53 @@
+.appointment-container{
+	padding: 15px;
+}
+.appoinitment-list{
+	list-style: none;
+	background: #fff;
+	margin-bottom: 15px;
+	-webkit-box-shadow: 0 1px 5px rgba(8,1,3,.05);
+	box-shadow: 0 1px 5px rgba(8,1,3,.05);
+	height: 107px;
+	border-radius: 4px;
+	overflow: hidden;
+}
+.appoinitment-list:last-child{
+	margin: 0;
+}
+.appoinitment-list .title{
+	padding: 0 15px;
+	height: 43px;
+	line-height: 43px;
+	border-bottom: 1px solid #e6e6e6;
+	font-size: 14px;
+	color: #333;
+	background: #f7f7f7;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.appoinitment-list .title1{
+	font-size: 12px;
+	color: #999;
+	padding-left: 10px;
+}
+.appointment-info{
+	height: 63px;
+	box-sizing: border-box;
+	padding: 15px;
+	font-size: 13px;
+	color: #666;
+}
+.appointment-info .caption{
+	font-size: 13px;
+	margin-bottom: 5px;
+	background: url(../images/icon1.png) no-repeat;
+	background-size: 12px 12px;
+	padding-left: 15px;
+}
+.appointment-info .time{
+	background: url(../images/icon2.png) no-repeat;
+	background-size: 12px 12px;
+	background-position: left 4px;
+	padding-left: 15px;
+}
