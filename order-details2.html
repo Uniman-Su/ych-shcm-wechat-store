@@ -35,7 +35,7 @@
 			    </li>
 			</ul>
 			<div class="details-content">
-				<h3 class="title">小保养</h3>
+				<h3 id="name" class="title"></h3>
 				<ul id="orderServicePacks" class="mui-table-view">
 				    <!--<li class="mui-table-view-cell">
 				    	<img class="details-icon" src="images/price-icon1.png" />
@@ -216,6 +216,8 @@
 									var data = data.data;
 									var orderServicePackItems = data[0].orderServicePackItems;
 									var list='';
+									var name = data[0].name;
+									document.getElementById('name').innerHTML = name;
 									mui.each(orderServicePackItems,function(index,item){
 										list+='<li class="mui-table-view-cell">';
 				    					list+='<img class="details-icon" src="'+item.iconPath+'" />';
